@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  HomeView.swift
 //  TrackJack
 //
 //  Created by Camden Bettencourt on 7/30/25.
@@ -7,18 +7,22 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct HomeView: View {
     var body: some View {
         VStack {
-            Image(systemName: "globe")
+            Image(systemName: "bird.fill")
                 .imageScale(.large)
                 .foregroundStyle(.tint)
-            Text("Hello, world!")
+            Text("Welcome to TrackJack!")
+            Button("Tap Me")
+            {
+                print("Button Tapped!")
+            }
         }
         .padding()
     }
 }
 
 #Preview {
-    ContentView()
+    HomeView()
 }
