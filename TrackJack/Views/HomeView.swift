@@ -8,18 +8,19 @@
 import SwiftUI
 
 struct HomeView: View {
+    var onLogout: () -> Void = { }
+    
     var body: some View {
-        VStack {
-            Image(systemName: "bird.fill")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Welcome to TrackJack!")
-            Button("Tap Me")
-            {
-                print("Button Tapped!")
+        NavigationStack{
+            VStack {
+                Image(systemName: "bird.fill")
+                    .imageScale(.large)
+                    .foregroundStyle(.tint)
+                Text("Welcome to TrackJack!")
+                Button("Log Out", action: onLogout)
             }
+            .padding()
         }
-        .padding()
     }
 }
 

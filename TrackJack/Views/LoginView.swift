@@ -8,11 +8,15 @@
 import SwiftUI
 
 struct LoginView: View {
+    var onSuccess: () -> Void = { }
+    
     // 1. MARK: - State
     @State private var username: String = ""
     @State private var password: String = ""
     @State private var isSecure: Bool = true
     @State private var showAlert: Bool = false
+    
+    @AppStorage("remember") var rememberMe = false
     
     // 2. MARK: - Body
     var body: some View {
@@ -58,7 +62,7 @@ struct LoginView: View {
                 // local validation
                 if username.count >= 4 && password.count >= 8 {
                     // normally call auth service here
-                    print("Attempt login...")
+                    onSuccess()
                 } else {
                     showAlert = true
                 }
