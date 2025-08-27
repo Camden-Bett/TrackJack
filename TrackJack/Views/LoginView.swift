@@ -14,6 +14,8 @@ struct LoginView: View {
     private let minUsernameLength = 4
     private let minPasswordLength = 8
     
+    enum Field { case username, password }
+    
     struct ValidationResult {
         var usernameMessage: String?
         var passwordMessage: String?
@@ -26,6 +28,8 @@ struct LoginView: View {
     @State private var isSecure: Bool = true
     @State private var showAlert: Bool = false
     @State private var alertText: String = ""
+    
+    @FocusState private var focusedField: Field?
     
     @AppStorage("remember") var rememberMe: Bool = false
     @AppStorage("user_stored") var usernameStore: String = ""
@@ -46,7 +50,10 @@ struct LoginView: View {
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled(true)
                 .padding()
+                .focused($focusedField, equals: .username)
+                .submitLabel(.next)
                 .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                .onSubmit { focusedField = .password }
                 .onAppear {
                     if rememberMe, !usernameStore.isEmpty {
                         username = usernameStore
@@ -65,9 +72,14 @@ struct LoginView: View {
                 }
                 .textContentType(.password)
                 .padding()
+                .submitLabel(.go)
+                .focused($focusedField, equals: .password)
+                .onSubmit { attemptLogin() }
                 
                 Button {
+                    let wasFocused = (focusedField == .password)
                     isSecure.toggle()
+                    if wasFocused { focusedField = .password } // retain current focus when eye clicked
                 } label: {
                     Image(systemName: isSecure ? "eye" : "eye.slash")
                         .padding(.trailing, 16)
@@ -77,29 +89,13 @@ struct LoginView: View {
             
             // "Remember Me" toggle
             Toggle("Remember Me", isOn: $rememberMe)
+                .onChange(of: rememberMe) {
+                    usernameStore = rememberMe ? username : ""
+                }
                 
             // Login button
             Button {
-                // local validation
-                // TODO: validate no special chars in Helpers
-                let res = validateUserPass(username: username, password: password)
-                if res.isValid {
-                    // call auth service here
-                    
-                    // persist username if remember me
-                    if rememberMe {
-                        usernameStore = username
-                    } else {
-                        usernameStore = "" // don't keep stale values
-                    }
-                    
-                    onSuccess()
-                } else {
-                    alertText = [res.usernameMessage, res.passwordMessage]
-                        .compactMap{$0}
-                        .joined(separator: "\n")
-                    showAlert = true
-                }
+                attemptLogin()
             } label: {
                 Text("Log In")
                     .frame(maxWidth: .infinity)
@@ -119,10 +115,14 @@ struct LoginView: View {
             // Spacer pushes content up on taller screens
             Spacer()
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top) // fill space
+        .contentShape(Rectangle())
+        .onTapGesture { focusedField = nil }
         .padding()
     }
     
     // 3. MARK: - Helpers
+    // checks user and pass against validation criteria, outputs validation status and any error messages
     private func validateUserPass(username: String, password: String) -> ValidationResult {
         var result = ValidationResult()
         
@@ -140,6 +140,23 @@ struct LoginView: View {
         }
         
         return result
+    }
+    
+    // controls login to TrackJack (not linked to Spotify!)
+    private func attemptLogin() {
+        username = username.trimmingCharacters(in: .whitespacesAndNewlines)
+        let res = validateUserPass(username: username, password: password)
+        if res.isValid {
+            // call auth service here
+            
+            if rememberMe { usernameStore = username } else { usernameStore = "" }
+            onSuccess()
+        } else {
+            alertText = [res.usernameMessage, res.passwordMessage]
+                .compactMap{$0}
+                .joined(separator: "\n")
+            showAlert = true
+        }
     }
     
 }
