@@ -49,16 +49,18 @@ struct LoginView: View {
                 .textContentType(.username)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled(true)
-                .padding()
                 .focused($focusedField, equals: .username)
                 .submitLabel(.next)
-                .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12))
                 .onSubmit { focusedField = .password }
                 .onAppear {
                     if rememberMe, !usernameStore.isEmpty {
                         username = usernameStore
                     }
                 }
+                .inputFieldStyle(
+                    isError: false, // TODO: add live checking later
+                    isFocused: focusedField == .username
+                    )
                 
             
             // Password (with reveal button)
@@ -71,10 +73,13 @@ struct LoginView: View {
                     }
                 }
                 .textContentType(.password)
-                .padding()
                 .submitLabel(.go)
                 .focused($focusedField, equals: .password)
                 .onSubmit { attemptLogin() }
+                .inputFieldStyle(
+                    isError: false, // TODO: add live checking later
+                    isFocused: focusedField == .password
+                    )
                 
                 Button {
                     let wasFocused = (focusedField == .password)
