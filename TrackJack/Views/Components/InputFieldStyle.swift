@@ -15,14 +15,19 @@ struct InputFieldStyle: ViewModifier {
     var corner: CGFloat = 12
     
     func body(content: Content) -> some View {
+        let shape = RoundedRectangle(cornerRadius: corner, style: .continuous)
+        
         content
             .padding(12)
-            .background(.thinMaterial, in: RoundedRectangle(cornerRadius: corner, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: corner, style: .continuous)
-                    .stroke(isError ? Color.red : (isFocused ? .accentColor : .clear), lineWidth: 1)
+            .background(
+                shape
+                    .fill(.thinMaterial)
+                    .shadow(radius: isFocused ? 6 : 0)
             )
-            .shadow(radius: isFocused ? 3 : 0)
+            .overlay(
+                shape.stroke(isError ? Color.red : (isFocused ? .accentColor : .clear), lineWidth: 1)
+            )
+            .clipShape(shape)
     }
 }
 

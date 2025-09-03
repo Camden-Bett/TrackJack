@@ -14,6 +14,8 @@ struct LoginView: View {
     private let minUsernameLength = 4
     private let minPasswordLength = 8
     
+    let fieldHeight: CGFloat = 24
+    
     enum Field { case username, password }
     
     struct ValidationResult {
@@ -28,15 +30,17 @@ struct LoginView: View {
     @State private var isSecure: Bool = true
     @State private var showAlert: Bool = false
     @State private var alertText: String = ""
+    @State private var usernameError: String?
+    @State private var passwordError: String?
     
     @FocusState private var focusedField: Field?
     
-    @AppStorage("remember") var rememberMe: Bool = false
-    @AppStorage("user_stored") var usernameStore: String = ""
+    @AppStorage(AppKeys.remember) var rememberMe: Bool = false
+    @AppStorage(AppKeys.username) var usernameStore: String = ""
     
     // 2. MARK: - Body
     var body: some View {
-        VStack (spacing: 24) {
+        VStack (spacing: 16) {
             // Logo placeholder
             Image(systemName: "music.note.house")
                 .font(.system(size: 64))
@@ -47,75 +51,103 @@ struct LoginView: View {
             TextField("Username", text: $username)
                 .keyboardType(.default)
                 .textContentType(.username)
+                .textFieldStyle(.plain)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled(true)
                 .focused($focusedField, equals: .username)
                 .submitLabel(.next)
+                .onChange(of: username) { _, newValue in
+                    usernameError = liveUsernameError(for: newValue)
+                }
                 .onSubmit { focusedField = .password }
                 .onAppear {
                     if rememberMe, !usernameStore.isEmpty {
                         username = usernameStore
                     }
                 }
+                .frame(height: fieldHeight)
                 .inputFieldStyle(
-                    isError: false, // TODO: add live checking later
+                    isError: usernameError != nil,
                     isFocused: focusedField == .username
-                    )
-                
+                )
+            
+            if let msg = usernameError {
+                Text(msg)
+                    .font(.footnote)
+                    .foregroundStyle(.red)
+                    .accessibilityLabel("Username error: \(msg)")
+            }
             
             // Password (with reveal button)
             ZStack(alignment: .trailing) {
-                Group {
                     if isSecure {
                         SecureField("Password", text: $password)
+                            .textContentType(.password)
+                            .focused($focusedField, equals: .password)
+                            .submitLabel(.go)
+                            .onChange(of: password) { _, newValue in
+                                passwordError = livePasswordError(for: newValue)
+                            }
+                            .onSubmit { attemptLogin() }
                     } else {
                         TextField("Password", text: $password)
+                            .textContentType(.password)
+                            .focused($focusedField, equals: .password)
+                            .submitLabel(.go)
+                            .onChange(of: password) { _, newValue in
+                                passwordError = livePasswordError(for: newValue)
+                            }
+                            .onSubmit { attemptLogin() }
                     }
-                }
-                .textContentType(.password)
-                .submitLabel(.go)
-                .focused($focusedField, equals: .password)
-                .onSubmit { attemptLogin() }
-                .inputFieldStyle(
-                    isError: false, // TODO: add live checking later
-                    isFocused: focusedField == .password
-                    )
                 
                 Button {
                     let wasFocused = (focusedField == .password)
                     isSecure.toggle()
-                    if wasFocused { focusedField = .password } // retain current focus when eye clicked
+                    if wasFocused {
+                        // retain current focus when eye clicked
+                        DispatchQueue.main.async {
+                            focusedField = .password
+                        }
+                    }
                 } label: {
                     Image(systemName: isSecure ? "eye" : "eye.slash")
-                        .padding(.trailing, 16)
                 }
             }
-            .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12))
+            .frame(height: fieldHeight)
+            .inputFieldStyle(
+                isError: passwordError != nil,
+                isFocused: focusedField == .password
+            )
+            .animation(.none, value: isSecure)
+            
+            if let msg = passwordError {
+                Text(msg)
+                    .font(.footnote)
+                    .foregroundStyle(.red)
+                    .accessibilityLabel("Password error: \(msg)")
+            }
             
             // "Remember Me" toggle
             Toggle("Remember Me", isOn: $rememberMe)
-                .onChange(of: rememberMe) {
+                .onChange(of: rememberMe, initial: true) {
                     usernameStore = rememberMe ? username : ""
                 }
-                
+            
             // Login button
-            Button {
-                attemptLogin()
-            } label: {
-                Text("Log In")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.accentColor, in: RoundedRectangle(cornerRadius: 12))
-                    .foregroundColor(.white)
-            }
-            .disabled(username.isEmpty || password.isEmpty)
-            .opacity(username.isEmpty || password.isEmpty ? 0.6 : 1)
-            .alert("Invalid Credentials",
-                   isPresented: $showAlert,
-                   actions: { Button("OK", role: .cancel) { } },
-                   message: {
-                       Text(alertText)
-                   })
+            Button ("Log In", action: attemptLogin)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.accentColor, in: RoundedRectangle(cornerRadius: 12))
+                .foregroundColor(.white)
+                .disabled(username.isEmpty || password.isEmpty)
+                .opacity(username.isEmpty || password.isEmpty ? 0.6 : 1)
+                .alert("Invalid Credentials",
+                       isPresented: $showAlert,
+                       actions: { Button("OK", role: .cancel) { } },
+                       message: {
+                    Text(alertText)
+                })
+                .accessibilityHint("Enter username and password to enable login")
             
             // Spacer pushes content up on taller screens
             Spacer()
@@ -124,46 +156,40 @@ struct LoginView: View {
         .contentShape(Rectangle())
         .onTapGesture { focusedField = nil }
         .padding()
+        .onAppear {
+            if rememberMe, !usernameStore.isEmpty {
+                username = usernameStore
+            }
+        }
     }
     
     // 3. MARK: - Helpers
-    // checks user and pass against validation criteria, outputs validation status and any error messages
-    private func validateUserPass(username: String, password: String) -> ValidationResult {
-        var result = ValidationResult()
-        
-        // check username length + alphanumerics
-        let trimmedUser = username.trimmingCharacters(in: .whitespacesAndNewlines)
-        if trimmedUser.count < minUsernameLength {
-            result.usernameMessage = "Username must be at least \(minUsernameLength) characters."
-        } else if trimmedUser.rangeOfCharacter(from :CharacterSet.alphanumerics.inverted) != nil {
-            result.usernameMessage = "Username can only include letters and numbers."
-        }
-        
-        // check password length
-        if password.count < minPasswordLength {
-            result.passwordMessage = "Password must be at least \(minPasswordLength) characters."
-        }
-        
-        return result
+    private func liveUsernameError(for u: String) -> String? {
+        if u.isEmpty { return nil }
+        let t = u.trimmingCharacters(in: .whitespacesAndNewlines)
+        if t.count < minUsernameLength { return "Username must be at least \(minUsernameLength) characters." }
+        if t.rangeOfCharacter(from: CharacterSet.alphanumerics.inverted) != nil { return "Username can only include letters and numbers." }
+        return nil
+    }
+    
+    private func livePasswordError(for p: String) -> String? {
+        if p.isEmpty { return nil }
+        if p.count < minPasswordLength { return "Password must be at least \(minPasswordLength) characters." }
+        return nil
     }
     
     // controls login to TrackJack (not linked to Spotify!)
     private func attemptLogin() {
         username = username.trimmingCharacters(in: .whitespacesAndNewlines)
-        let res = validateUserPass(username: username, password: password)
-        if res.isValid {
-            // call auth service here
-            
-            if rememberMe { usernameStore = username } else { usernameStore = "" }
-            onSuccess()
-        } else {
-            alertText = [res.usernameMessage, res.passwordMessage]
-                .compactMap{$0}
-                .joined(separator: "\n")
-            showAlert = true
-        }
+        
+        usernameError = liveUsernameError(for: username)
+        passwordError = livePasswordError(for: password)
+        
+        guard usernameError == nil, passwordError == nil else { return }
+        if rememberMe { usernameStore = username } else { usernameStore = "" }
+        
+        onSuccess()
     }
-    
 }
 
 #Preview {
