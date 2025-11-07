@@ -13,18 +13,18 @@ struct TrackJackApp: App {
     
     var body: some Scene {
         WindowGroup {
-            RootView(isLoggedIn: $isLoggedIn)
+            AuthGateView(isLoggedIn: $isLoggedIn)
         }
     }
 }
 
-struct RootView: View {
+struct AuthGateView: View {
     @Binding var isLoggedIn: Bool
     
     var body: some View {
         Group {
             if isLoggedIn {
-                HomeView(onLogout: { isLoggedIn = false })
+                RootView(onLogout: { isLoggedIn = false })
             } else {
                 LoginView(onSuccess: { isLoggedIn = true })
             }
@@ -35,5 +35,5 @@ struct RootView: View {
 
 #Preview {
     @Previewable @State var isLoggedIn = false
-    RootView(isLoggedIn: $isLoggedIn)
+    AuthGateView(isLoggedIn: $isLoggedIn)
 }

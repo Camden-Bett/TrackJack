@@ -1,0 +1,45 @@
+//
+//  RootView.swift
+//  TrackJack
+//
+//  Created by Camden Bettencourt on 11/6/25.
+//
+
+import SwiftUI
+
+struct RootView: View {
+    let onLogout: () -> Void
+    @State private var path = NavigationPath()
+    
+    var body: some View {
+        TabView {
+            NavigationStack {
+                HomeView(onLogout: onLogout)
+            }
+            .tabItem { Label("Home", systemImage: "house.fill") }
+            
+            NavigationStack {
+                FriendsView()
+            }
+            .tabItem { Label("Friends", systemImage: "person.2.fill") }
+            
+            // profile tab (placeholder
+            // ProfileView()
+            // .tabItem { Label("Profile", systemImage: "person.crop.circle") }
+        }
+        .navigationTitle("TrackJack")
+        
+    }
+}
+
+// thin wrapper for Home
+private struct HomeTab: View {
+    let onLogout: () -> Void
+    var body: some View {
+        HomeView(onLogout: onLogout)
+    }
+}
+
+#Preview {
+    RootView(onLogout: {})
+}

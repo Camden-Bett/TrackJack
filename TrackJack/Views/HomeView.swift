@@ -16,60 +16,58 @@ struct HomeView: View {
     
     // MARK: body
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 24) {
-                
-                // header
-                VStack(spacing: 8) {
-                    Image(systemName: "bird.fill")
-                        .imageScale(.large)
-                        .foregroundStyle(.tint)
-                        .font(.system(size: 40))
-                    Text("Welcome to TrackJack!")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                }
-                
-                // current song (conditional view)
-                Group {
-                    if let song = songOfTheDay {
-                        CurrentSongCard(song: song) {
-                            isPickingSong = true // edit
-                        }
-                    } else {
-                        VStack(spacing: 8) {
-                            Text("No song picked yet.")
-                                .font(.headline)
-                            Button {
-                                isPickingSong = true
-                            } label: {
-                                Label("Pick your Song of the Day", systemImage: "music.note.list")
-                            }
-                            .buttonStyle(.borderedProminent)
-                        }
+        VStack(spacing: 24) {
+            
+            // header
+            VStack(spacing: 8) {
+                Image(systemName: "bird.fill")
+                    .imageScale(.large)
+                    .foregroundStyle(.tint)
+                    .font(.system(size: 40))
+                Text("Welcome to TrackJack!")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+            }
+            
+            // current song (conditional view)
+            Group {
+                if let song = songOfTheDay {
+                    CurrentSongCard(song: song) {
+                        isPickingSong = true // edit
                     }
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal)
-                
-                Spacer()
-                
-                Button(role: .destructive, action: onLogout) {
-                    Text("Log Out")
-                        .fontWeight(.semibold)
+                } else {
+                    VStack(spacing: 8) {
+                        Text("No song picked yet.")
+                            .font(.headline)
+                        Button {
+                            isPickingSong = true
+                        } label: {
+                            Label("Pick your Song of the Day", systemImage: "music.note.list")
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
                 }
             }
-            .padding()
-            .navigationTitle("Home")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        isPickingSong = true
-                    } label: {
-                        Image(systemName: songOfTheDay == nil ? "plus.circle" : "pencil.circle")
-                    }
-                    .help(songOfTheDay == nil ? "Pick your Song of the Day" : "Edit your Song of the Day")
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal)
+            
+            Spacer()
+            
+            Button(role: .destructive, action: onLogout) {
+                Text("Log Out")
+                    .fontWeight(.semibold)
+            }
+        }
+        .padding()
+        .navigationTitle("Home")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    isPickingSong = true
+                } label: {
+                    Image(systemName: songOfTheDay == nil ? "plus.circle" : "pencil.circle")
                 }
+                .help(songOfTheDay == nil ? "Pick your Song of the Day" : "Edit your Song of the Day")
             }
         }
         .sheet(isPresented: $isPickingSong) {
