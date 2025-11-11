@@ -10,9 +10,18 @@ import SwiftUI
 struct FriendsView: View {
     var isActive: Bool = true
     
-    @StateObject private var vm = FriendsViewModel(store: MockFriendStore())
+    @StateObject private var vm: FriendsViewModel
+    
     @State private var showAdd = false
     @State private var query = ""
+    
+    init(deps: AppDependencies? = nil) {
+        let d = deps ?? AppDependencies(
+            friendStore: MockFriendStore(),
+            dateService: DefaultDateService()
+        )
+        _vm = StateObject(wrappedValue: FriendsViewModel(store: d.friendStore))
+    }
     
     // derived list
     private var filtered: [Friend] {

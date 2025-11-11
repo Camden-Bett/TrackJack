@@ -24,7 +24,12 @@ struct AuthGateView: View {
     var body: some View {
         Group {
             if isLoggedIn {
-                RootView(onLogout: { isLoggedIn = false })
+                let deps = AppDependencies(
+                    friendStore: MockFriendStore(),
+                    dateService: DefaultDateService()
+                )
+                
+                RootView(onLogout: { isLoggedIn = false }, deps: deps)
             } else {
                 LoginView(onSuccess: { isLoggedIn = true })
             }

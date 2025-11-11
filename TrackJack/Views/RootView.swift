@@ -9,17 +9,20 @@ import SwiftUI
 
 struct RootView: View {
     let onLogout: () -> Void
+    let deps: AppDependencies
     @State private var path = NavigationPath()
     
     var body: some View {
         TabView {
             NavigationStack {
                 HomeView(onLogout: onLogout)
+                    .navigationTitle("Home")
             }
             .tabItem { Label("Home", systemImage: "house.fill") }
             
             NavigationStack {
-                FriendsView()
+                FriendsView(deps: deps)
+                    .navigationTitle("Friends")
             }
             .tabItem { Label("Friends", systemImage: "person.2.fill") }
             
@@ -38,8 +41,4 @@ private struct HomeTab: View {
     var body: some View {
         HomeView(onLogout: onLogout)
     }
-}
-
-#Preview {
-    RootView(onLogout: {})
 }
