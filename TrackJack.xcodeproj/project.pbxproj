@@ -6,8 +6,19 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		CC8C6E6B2EC3F833003256BE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CC7B04272E3B037700E85B38 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CC7B042E2E3B037700E85B38;
+			remoteInfo = TrackJack;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		CC7B042F2E3B037700E85B38 /* TrackJack.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrackJack.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC8C6E672EC3F833003256BE /* TrackJackTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TrackJackTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -16,10 +27,22 @@
 			path = TrackJack;
 			sourceTree = "<group>";
 		};
+		CC8C6E682EC3F833003256BE /* TrackJackTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = TrackJackTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		CC7B042C2E3B037700E85B38 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC8C6E642EC3F833003256BE /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -33,6 +56,7 @@
 			isa = PBXGroup;
 			children = (
 				CC7B04312E3B037700E85B38 /* TrackJack */,
+				CC8C6E682EC3F833003256BE /* TrackJackTests */,
 				CC7B04302E3B037700E85B38 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				CC7B042F2E3B037700E85B38 /* TrackJack.app */,
+				CC8C6E672EC3F833003256BE /* TrackJackTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -70,6 +95,29 @@
 			productReference = CC7B042F2E3B037700E85B38 /* TrackJack.app */;
 			productType = "com.apple.product-type.application";
 		};
+		CC8C6E662EC3F833003256BE /* TrackJackTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CC8C6E6D2EC3F833003256BE /* Build configuration list for PBXNativeTarget "TrackJackTests" */;
+			buildPhases = (
+				CC8C6E632EC3F833003256BE /* Sources */,
+				CC8C6E642EC3F833003256BE /* Frameworks */,
+				CC8C6E652EC3F833003256BE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CC8C6E6C2EC3F833003256BE /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				CC8C6E682EC3F833003256BE /* TrackJackTests */,
+			);
+			name = TrackJackTests;
+			packageProductDependencies = (
+			);
+			productName = TrackJackTests;
+			productReference = CC8C6E672EC3F833003256BE /* TrackJackTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -82,6 +130,10 @@
 				TargetAttributes = {
 					CC7B042E2E3B037700E85B38 = {
 						CreatedOnToolsVersion = 16.3;
+					};
+					CC8C6E662EC3F833003256BE = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = CC7B042E2E3B037700E85B38;
 					};
 				};
 			};
@@ -100,12 +152,20 @@
 			projectRoot = "";
 			targets = (
 				CC7B042E2E3B037700E85B38 /* TrackJack */,
+				CC8C6E662EC3F833003256BE /* TrackJackTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		CC7B042D2E3B037700E85B38 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC8C6E652EC3F833003256BE /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +182,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CC8C6E632EC3F833003256BE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		CC8C6E6C2EC3F833003256BE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CC7B042E2E3B037700E85B38 /* TrackJack */;
+			targetProxy = CC8C6E6B2EC3F833003256BE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		CC7B04382E3B037800E85B38 /* Debug */ = {
@@ -302,6 +377,42 @@
 			};
 			name = Release;
 		};
+		CC8C6E6E2EC3F833003256BE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BRKD48CL8U;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = MagWare.TrackJackTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TrackJack.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TrackJack";
+			};
+			name = Debug;
+		};
+		CC8C6E6F2EC3F833003256BE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BRKD48CL8U;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = MagWare.TrackJackTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TrackJack.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TrackJack";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -319,6 +430,15 @@
 			buildConfigurations = (
 				CC7B043B2E3B037800E85B38 /* Debug */,
 				CC7B043C2E3B037800E85B38 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CC8C6E6D2EC3F833003256BE /* Build configuration list for PBXNativeTarget "TrackJackTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC8C6E6E2EC3F833003256BE /* Debug */,
+				CC8C6E6F2EC3F833003256BE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -26,7 +26,7 @@ enum UsernameValidation {
     static func isValid(_ username: String) -> Bool {
         let canon = username.lowercased()
         if reserved.contains(canon) { return true } // special case "tj" doesn't fit our pattern
-        return username.range(of: pattern, options: .regularExpression) != nil
+        return canon.range(of: pattern, options: .regularExpression) != nil
     }
     
     static func canonical(_ username: String) -> String { username.lowercased() }
