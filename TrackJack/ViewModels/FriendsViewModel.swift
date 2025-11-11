@@ -34,10 +34,10 @@ final class FriendsViewModel: ObservableObject {
         }
     }
     
-    func remove(_ friend: Friend) {
+    func remove(_friend: Friend) {
         Task {
             do {
-                try await store.remove(id: friend.id)
+                try await store.remove(id: _friend.id)
                 friends = try await store.list()
             } catch { self.error = error.localizedDescription }
         }

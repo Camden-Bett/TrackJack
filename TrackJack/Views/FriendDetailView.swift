@@ -69,6 +69,8 @@ struct FriendDetailView: View {
     }
 }
 
+#if DEBUG
 #Preview {
     FriendDetailView(friend: Friend(username: "TJ"))
 }
+#endif

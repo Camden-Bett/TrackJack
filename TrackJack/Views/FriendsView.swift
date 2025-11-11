@@ -33,50 +33,56 @@ struct FriendsView: View {
     }
     
     var body: some View {
-        Group {
-            if vm.friends.isEmpty && !vm.isLoading {
-                EmptyState(
-                    title: "No friends yet",
-                    message: "Add a friend by their username to see daily picks.",
-                    actionTitle: "Add Friend",
-                    action: { showAdd = true }
-                )
-            } else {
-                List {
-                    ForEach(filtered) { friend in
-                        NavigationLink {
-                            FriendDetailView(friend: friend)
-                        } label: {
-                            Text(friend.username)
-                        }
-                        .swipeActions {
-                            Button(role: .destructive) { vm.remove(friend: friend) } label: {
-                                Label("Remove", systemImage: "trash")
-                            }
-                        }
+        content
+            .navigationTitle("Friends")
+            .toolbar {
+                Button { showAdd = true } label: {
+                    Label("Add", systemImage: "person.fill.badge.plus")
+                }
+            }
+            .modifier(SearchIfActive(isActive: isActive, text: $query))
+            .onAppear { vm.load() }
+            .onDisappear { query = "" }
+            .sheet(isPresented: $showAdd) {
+                AddFriendSheet { username in vm.add(username: username) }
+                    .presentationDetents([.medium])
+            }
+            .refreshable { vm.load() }
+            .alert("Oops", isPresented: .constant(vm.error != nil), presenting: vm.error) { _ in
+                Button("OK") { vm.error = nil }
+            } message: { Text($0) }
+    }
+    
+    @ViewBuilder
+    private var content: some View {
+        if vm.friends.isEmpty && !vm.isLoading {
+            EmptyState(
+                title: "No friends yet",
+                message: "Add a friend by their username to see daily picks.",
+                actionTitle: "Add Friend",
+                action: { showAdd = true }
+            )
+        } else {
+            friendsList
+                .redacted(reason: vm.isLoading ? .placeholder : [])
+        }
+    }
+    
+    private var friendsList: some View {
+        List {
+            ForEach(filtered) { friend in
+                NavigationLink {
+                    FriendDetailView(friend: friend)
+                } label: {
+                    Text(friend.username)
+                }
+                .swipeActions {
+                    Button(role: .destructive) { vm.remove(_friend: friend) } label: {
+                        Label("Remove", systemImage: "trash")
                     }
                 }
-                .redacted(reason: vm.isLoading ? .placeholder : [])
             }
         }
-        .navigationTitle("Friends")
-        .toolbar {
-            Button { showAdd = true } label: {
-                Label("Add", systemImage: "person.fill.badge.plus")
-            }
-        }
-        .modifier(SearchIfActive(isActive: isActive, text: $query))
-        .searchable(text: $query, prompt: "Search friends")
-        .onAppear { vm.load() }
-        .onDisappear { query = "" }
-        .sheet(isPresented: $showAdd) {
-            AddFriendSheet { username in vm.add(username: username) }
-                .presentationDetents([.medium])
-        }
-        .refreshable { vm.load() }
-        .alert("Oops", isPresented: .constant(vm.error != nil), presenting: vm.error) { _ in
-            Button("OK") { vm.error = nil }
-        } message: { Text($0) }
     }
 }
 
@@ -92,6 +98,8 @@ private struct SearchIfActive: ViewModifier {
     }
 }
 
+#if DEBUG
 #Preview {
     FriendsView()
 }
+#endif

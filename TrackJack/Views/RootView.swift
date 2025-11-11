@@ -15,7 +15,7 @@ struct RootView: View {
     var body: some View {
         TabView {
             NavigationStack {
-                HomeView(onLogout: onLogout)
+                HomeView()
                     .navigationTitle("Home")
             }
             .tabItem { Label("Home", systemImage: "house.fill") }
@@ -32,13 +32,5 @@ struct RootView: View {
         }
         .navigationTitle("TrackJack")
         
-    }
-}
-
-// thin wrapper for Home
-private struct HomeTab: View {
-    let onLogout: () -> Void
-    var body: some View {
-        HomeView(onLogout: onLogout)
     }
 }

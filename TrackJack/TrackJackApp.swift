@@ -9,36 +9,46 @@ import SwiftUI
 
 @main
 struct TrackJackApp: App {
-    @State private var isLoggedIn = false           // used in Unit 2
+    @StateObject private var session = SessionViewModel()
+    
+    private let deps = AppDependencies(
+        friendStore: MockFriendStore(),
+        dateService: DefaultDateService()
+    )
     
     var body: some Scene {
         WindowGroup {
-            AuthGateView(isLoggedIn: $isLoggedIn)
+            AuthGateView(session: session, deps: deps)
+                .environmentObject(session)
+                .onAppear { session.restoreIfPossible() }
         }
     }
 }
 
 struct AuthGateView: View {
-    @Binding var isLoggedIn: Bool
+    @ObservedObject var session: SessionViewModel
+    let deps: AppDependencies
     
     var body: some View {
         Group {
-            if isLoggedIn {
-                let deps = AppDependencies(
-                    friendStore: MockFriendStore(),
-                    dateService: DefaultDateService()
-                )
-                
-                RootView(onLogout: { isLoggedIn = false }, deps: deps)
+            if session.isLoggedIn {
+                RootView(onLogout: { session.logout() }, deps: deps)
             } else {
-                LoginView(onSuccess: { isLoggedIn = true })
+                LoginView(onSuccess: { username in
+                    session.loginSucceeded(username: username)
+                })
             }
         }
-        .animation(.default, value: isLoggedIn)
+        .animation(.default, value: session.isLoggedIn)
     }
 }
 
+#if DEBUG
 #Preview {
-    @Previewable @State var isLoggedIn = false
-    AuthGateView(isLoggedIn: $isLoggedIn)
+    AuthGateView(session: SessionViewModel(),
+                 deps: AppDependencies(
+                    friendStore: MockFriendStore(),
+                    dateService: DefaultDateService())
+    )
 }
+#endif

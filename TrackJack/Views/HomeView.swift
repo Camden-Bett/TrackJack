@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct HomeView: View {
+    @EnvironmentObject private var session: SessionViewModel
+    
     // MARK: local values
     @State private var songOfTheDay: Song? = nil
     @State private var isPickingSong = false
-    
-    var onLogout: () -> Void = { }
     
     // MARK: body
     var body: some View {
@@ -53,14 +53,21 @@ struct HomeView: View {
             
             Spacer()
             
-            Button(role: .destructive, action: onLogout) {
-                Text("Log Out")
-                    .fontWeight(.semibold)
+            Button(role: .destructive) {
+                session.logout()
+            } label: {
+                Text("Log Out").fontWeight(.semibold)
             }
         }
         .padding()
         .navigationTitle("Home")
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                if let u = session.username {
+                    Label("@\(u)", systemImage: "person.crop.circle")
+                }
+            }
+            
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     isPickingSong = true
@@ -129,6 +136,14 @@ private struct CurrentSongCard: View {
     }
 }
 
+#if DEBUG
 #Preview {
-    HomeView()
+    let session = SessionViewModel()
+    session.loginSucceeded(username: "tj")
+    
+    return NavigationStack{
+        HomeView()
+            .environmentObject(session)
+    }
 }
+#endif

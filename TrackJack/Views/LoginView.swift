@@ -9,7 +9,7 @@ import SwiftUI
 
 struct LoginView: View {
     // 0. MARK: - Definitions
-    var onSuccess: () -> Void = { }
+    var onSuccess: (_ username: String) -> Void
     
     private let minUsernameLength = 4
     private let minPasswordLength = 8
@@ -187,11 +187,8 @@ struct LoginView: View {
         
         guard usernameError == nil, passwordError == nil else { return }
         if rememberMe { usernameStore = username } else { usernameStore = "" }
+        // TODO: actually validate creds
         
-        onSuccess()
+        onSuccess(username)
     }
-}
-
-#Preview {
-    LoginView()
 }
