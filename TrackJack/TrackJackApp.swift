@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseCore
 
 @main
 struct TrackJackApp: App {
@@ -15,6 +16,10 @@ struct TrackJackApp: App {
         friendStore: MockFriendStore(),
         dateService: DefaultDateService()
     )
+    
+    init() {
+        FirebaseApp.configure()
+    }
     
     var body: some Scene {
         WindowGroup {
