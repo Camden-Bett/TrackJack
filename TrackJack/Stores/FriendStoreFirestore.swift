@@ -5,44 +5,77 @@
 //  Created by Camden Bettencourt on 12/3/25.
 //
 
+import Foundation
 import FirebaseFirestore
 
+@MainActor
 final class FriendStoreFirestore: FriendStore {
     private let db = Firestore.firestore()
+    private let authService: AuthService
     
-    func list(uid: String, onChange: @escaping ([FriendEdge]) -> Void) -> Any {
-        let ref = db.collection("users").document(uid).collection("friendEdges")
-            .order(by:"usernameLower")
-        // return a token to stop listening later
-        let listener = ref.addSnapshotListener { snap, _ in
-            guard let docs = snap?.documents else { return }
-            let edges = docs.compactMap { d -> FriendEdge? in
-                let data = d.data()
-                guard let username = data["username"] as? String,
-                      let ts = data["createdAt"] as? Timestamp else { return nil }
-                return FriendEdge(id: d.documentID, username: username, createdAt: ts.dateValue())
-            }
-            onChange(edges)
-        }
-        return listener // NSO (ListenerRegistration)
+    init(authService: AuthService = .shared) {
+        self.authService = authService
     }
     
-    func add(uid: String, username: String) async throws {
-        let lower = username.lowercased()
-        let doc = db.collection("users").document(uid).collection("friendEdges").document(lower)
-        try await db.runTransaction { tx, _ in
-            if tx.getDocument(doc).exists { return nil } // deduplicate
-            tx.setData([
-                "username": username,
-                "usernameLower": lower,
-                "createdAt": FieldValue.serverTimestamp()
-            ], forDocument: doc)
-            return nil
+    // MARK: - Helpers
+    
+    private func edgesCollection(for uid: String) -> CollectionReference {
+        db.collection("users")
+            .document(uid)
+            .collection("friendEdges")
+    }
+    
+    // MARK: - FriendStore
+    
+    func list() async throws -> [Friend] {
+        let uid = try await authService.ensureSignedIn()
+        let query = edgesCollection(for: uid)
+            .order(by: "usernameLower")
+        
+        let snapshot = try await query.getDocumentsAsync()
+        
+        return snapshot.documents.compactMap { (doc) -> Friend? in
+            let data = doc.data()
+            guard let username = data["username"] as? String else { return nil }
+            
+            return Friend(username: username)
         }
     }
     
-    func remove(uid: String, canonicalId: String) async throws {
-        let doc = db.collection("users").document(uid).collection("friendEdges").document(canonicalId)
-        try await doc.delete()
+    func add(username: String) async throws -> Friend {
+        guard UsernameValidation.isValid(username) else {
+            throw FriendError.invalidUsername
+        }
+        
+        let canonical = UsernameValidation.canonical(username)
+        let uid = try await authService.ensureSignedIn()
+        let doc = edgesCollection(for: uid).document(canonical)
+        
+        // check if already friends
+        let existing = try await doc.getDocumentAsync()
+        if existing.exists {
+            throw FriendError.alreadyFriends
+        }
+        
+        try await doc.setDataAsync([
+            "username": username,
+            "usernameLower": canonical,
+            "createdAt": FieldValue.serverTimestamp()
+        ])
+        
+        return Friend(username: username)
+    }
+    
+    func remove(id: String) async throws {
+        let canonical = UsernameValidation.canonical(id)
+        let uid = try await authService.ensureSignedIn()
+        let doc = edgesCollection(for: uid).document(canonical)
+        
+        let snap = try await doc.getDocumentAsync()
+        guard snap.exists else {
+            throw FriendError.notFound
+        }
+        
+        try await doc.deleteAsync()
     }
 }
